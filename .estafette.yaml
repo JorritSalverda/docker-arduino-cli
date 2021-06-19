@@ -1,0 +1,41 @@
+# https://estafette.io/usage/manifest/
+labels:
+  container: arduino-cli
+  language: docker
+
+version:
+  semver:
+    major: 0
+    minor: 0
+
+stages:
+  bake:
+    image: extensions/docker:stable
+    action: build
+    container: ${ESTAFETTE_LABEL_CONTAINER}
+    repositories:
+    - jsalverda
+
+  push-to-docker-registry-for-branch:
+    image: extensions/docker:stable
+    action: push
+    container: ${ESTAFETTE_LABEL_CONTAINER}
+    repositories:
+    - jsalverda
+    tags:
+    - ${ESTAFETTE_GIT_BRANCH}
+    when:
+      status == 'succeeded' &&
+      branch != 'main'
+
+  push-to-docker-registry-for-master:
+    image: extensions/docker:stable
+    action: push
+    container: ${ESTAFETTE_LABEL_CONTAINER}
+    repositories:
+    - jsalverda
+    tags:
+    - latest
+    when:
+      status == 'succeeded' &&
+      branch == 'main'
